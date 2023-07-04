@@ -1,0 +1,33 @@
+{% extends 'core/base.html'  %}
+
+{% block title %}Sign up | {% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-body">
+        <h1 class="title has-text-centered has-text-white">Sign up</h1>
+    </div>
+</div>
+
+<section class="section has-text-white">
+    <div class="columns">
+        <div class="column is-4 is-offset-4">
+            <form method="post" action=".">
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <div class="field">
+                    <div class="control">
+                        <button style="background-color:rgb(209, 123, 24)" class="btn">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
+
+

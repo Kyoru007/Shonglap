@@ -1,0 +1,51 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}সংলাপ</title>
+    <script> src="https://cd.tailwindcss.com"</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Deca&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'core/style.css' %}" >
+  </head> 
+  <body class="bg-teal-600">
+    
+    <nav class="navbar navbar-expand-lg bg-dark body-dark navbar-dark"  >
+        <div>
+          <a href="/" class="navbar-brand" ><h1 >সংলাপ</h1></a>
+        </div> 
+
+        <div style = "position:fixed; right:10px; top:20px; " class="flex items-right space-x-4" >
+            {% if request.user.is_authenticated %}
+            <button style="background-color:rgb(209, 123, 24)" onclick="location.href='/rooms/'" type="button" class="btn" >Rooms</button>
+
+            <button style="background-color:rgb(209, 123, 24)" onclick="location.href='/logout/'" type="button" class="btn" >logout</button>
+            {% else %}
+              <button style="background-color:rgb(209, 123, 24)" onclick="location.href='/login/'"  type="button" class="btn " >login</button>
+              <button style="background-color:rgb(209, 123, 24)" onclick="location.href='/signup/'" type="button" class="btn" >signup</button>
+
+            {% endif %}
+                  
+            </div>
+        
+       
+      </nav>
+      {% block content %}
+
+
+      {% endblock %}
+      {% block scripts %} 
+
+      {% endblock %}
+       </body>
+
+</html>

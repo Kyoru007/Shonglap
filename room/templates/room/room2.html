@@ -1,0 +1,142 @@
+{% extends 'core/base.html'  %}
+
+
+{% block title %} {{room.name}} | {% endblock %}
+
+
+{% block content %}
+<center>
+    
+<div >
+
+    <h1  class="text-3xl lg:text-6xl text-white">{{room.name}}</h1>
+</div>
+{% for message in messages %}
+<!-- <div style="border-radius: 10px;
+background-image: linear-gradient(to top right, rgb(253, 253, 253),rgb(255, 255, 255));
+padding: 50px; 
+width: 500px;
+height: 50px; 
+margin: 10px; " > -->
+    
+    
+    <div  class="chat messages space-y-3" id="chat-messages">
+            
+        <div style = "border-radius: 10px;
+        background-image: linear-gradient(to top right, rgb(19, 17, 17),rgb(177, 47, 47));
+        padding: 30px; 
+        width: 450px;
+        height: 30px;
+        margin: 10px; 
+         "  class="p-4 bg-gray-200 rounded-xl">
+          
+           <div style="text-align:left;" class="chat messages space-y-3" id="chat-messages">
+            
+            <p  class="font-small"style="color:rgb(250, 250, 250); text-align:left;">{{message.content}}</p>
+            <p class="font-small"style="color:rgb(255, 251, 2); text-align:left;">{{message.user.username}}</p>
+           
+          </div>
+      
+       </div>
+       
+    </div>
+ {% endfor %}       
+    <!-- </div> -->
+    
+<form method="post" action="." class="flex" >
+    {% csrf_token %}
+    <input type="text" name="content"  placeholder="Your message." id="chat-message-input" style="border-radius: 10px;
+    background-image: linear-gradient(to top right, rgb(255, 255, 255),rgb(255, 255, 255));
+    padding: 30px; 
+    width: 500px;
+    height: 10px; 
+    margin: 10px; 
+    text-align: center;" >
+    <div>
+    <button style="background-color:rgb(209, 123, 24)"   class="btn" id="chat-message-submit" >send</button>
+</div></form>
+<div id="json-roomname" style="display: none;">{"roomName": "{{room.name}}" }</div>
+<!-- <div id="json-username" style="display: none;">{"userName":{{request.user.username|json_script:'json-username'}}}</div> -->
+<div id="json-roomname" style="display: none;">{"roomName": "{{message.user.username}}" }</div>
+</center>
+
+{% endblock %}
+
+{% block scripts %}
+{{room.slug|json_script:"json_roomname"}}
+{{ request.user.username|json_script:"json-username"}}
+<script type="text/javascript">
+      
+    document.addEventListener('DOMContentLoaded', function() {
+
+      const roomNameElement = document.getElementById('json-roomname');
+      const userNameElement = document.getElementById('json-username');
+      let roomName;
+      let userName;
+  
+      if (roomNameElement && userNameElement) {
+        roomName = JSON.parse(roomNameElement.textContent).roomName;
+        userName = JSON.parse(userNameElement.textContent).username;
+        const socketProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const chatSocket = new WebSocket(
+          'ws://' +
+          window.location.host +
+          '/ws/' +
+          roomName +
+          '/'
+        );
+        chatSocket.onmessage = function(e) {
+          console.log('onmessage');
+  
+          const data = JSON.parse(e.data);
+  
+          if (data.message) {
+            let html='<div  class="chat messages space-y-3" id="chat-messages">';
+                html += '<div style = "border-radius: 10px; background-image: linear-gradient(to top right, rgb(19, 17, 17),rgb(177, 47, 47)); padding: 30px; width: 450px;height: 30px;margin: 10px; "  class="p-4 bg-gray-200 rounded-xl">';
+                html +='<div style="text-align:left;" class="chat messages space-y-3" id="chat-messages">';
+                html += '<h5 class="small" style="color:rgb(250, 250, 250); text-align:left;">' +data.message  + '</h5>';
+                html += '<p class="font-small"style="color:rgb(250, 250, 250); text-align:left;">' + data.username + '</p>';
+                html +='</div>'
+                html +='</div>'
+                html +='</div>'
+                scrollToBottom();
+            document.querySelector('#chat-messages').innerHTML+=html;
+
+            
+          } else {
+            alert('The message was empty!');
+          }
+        }
+        chatSocket.onclose = function(e) {
+          console.log('onclose');
+        }
+  
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+          e.preventDefault();
+          const messageInputDom = document.querySelector('#chat-message-input');
+          const message = messageInputDom.value;
+  
+          chatSocket.send(JSON.stringify({
+            'message': message,
+            'username': userName,
+            'room': roomName
+          }));
+          messageInputDom.value = '';
+  
+          return false;
+        }
+      } else {
+        console.error("Could not find elements with IDs 'json-roomname' and 'json-username'");
+      }
+      function scrollToBottom(){
+        const objDiv =Document.querySelector('#chat-messages');
+        objDiv.scrollTop = objDiv.scrollHeight;
+      }
+    });
+  </script>
+{% endblock %}
+
+
+
+
+

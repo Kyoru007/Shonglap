@@ -1,0 +1,26 @@
+{% extends 'core/base.html'  %}
+
+
+{% block title %} স্বাগতম | {% endblock %}
+
+
+{% block content %}
+<div style = "position:fixed; right:900px; top:250px; " >
+    <h1  class="text-3xl lg:text-6xl text-white">Rooms</h1>
+</div>
+{% for room in rooms %}
+
+<div class="w-full flex flex-wrap items-center" style = " right:900px; top:250px; ">
+    <div class="card text-center mb-3 bg-dark body-dark card-dark" style="width: 30rem;  ">
+        <div class="card-body ">
+          <h5 style="color:rgb(255, 255, 255); text-align: center;">{{room.name}}</h5>
+    
+          <a href="{% url 'room' room.slug %}" style="background-color:rgb(209, 123, 24)" class="btn ">join</a>
+        </div>
+      </div>
+    
+    </div>
+
+{% endfor %}
+{% endblock %}
+

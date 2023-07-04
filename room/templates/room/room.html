@@ -1,0 +1,112 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ room.name }} | {% endblock %}
+
+{% block content %}
+<center>
+<div class="hero">
+    <div class="hero-body">
+        <h1 class="title has-text-centered has-text-white">{{ room.title }}</h1>
+    </div>
+</div>
+
+<section class="section has-text-white">
+    <div class="columns is-multiline">
+        <div class="column is-8 is-offset-2">
+            <div class="box messages" id="chat-messages" style="border-radius: 10px;
+            background-image: linear-gradient(to top right, rgb(255, 255, 255),rgb(255, 255, 255));
+            padding: 30px; 
+            width: 500px;
+            height: 10px; 
+            margin: 10px; 
+            text-align: center;" >
+               {% for message in messages %}
+               <div  class="chat messages space-y-3" id="chat-messages">
+                <p class="font-semibold">{{message.user.username}}</p>
+                <p>{{message.content}}</p></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="column is-8 is-offset-2">
+            <div class="box">
+                <div class="media">
+                    <div class="media-content">
+                        <form method="post" action="."  >
+                            {% csrf_token %}
+                            <input type="text" name="content"  placeholder="Your message." id="chat-message-input" style="border-radius: 10px;
+                            background-image: linear-gradient(to top right, rgb(255, 255, 255),rgb(255, 255, 255));
+                            padding: 30px; 
+                            width: 500px;
+                            height: 10px; 
+                            margin: 10px; 
+                            text-align: center;" >
+                            <div>
+                            <button style="background-color:rgb(209, 123, 24)"   class="btn" id="chat-message-submit" >send</button>
+                        </div></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</section>
+</center>
+{% endblock %}
+{% block scripts %}
+{{room.slug|json_script:"json_roomname"}}
+{{ request.user.username|json_script:"json-username"}}
+<script type="text/javascript">
+    const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
+    const userName = JSON.parse(document.getElementById('json-username').textContent);
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        console.log('onMessage');
+        
+        const data = JSON.parse(e.data);
+
+        if (data.message) {
+            let html='<div  class="chat messages space-y-3" id="chat-messages">';
+               html+='<p class="font-semibold">'+data.userName+'</p>';
+               html+='<p>' +data.message+ '</p></div>';
+            document.querySelector('#chat-messages').innerHTML+=html;
+
+        }else{
+            alert('The message was empty');
+        }
+    }
+
+    chatSocket.onclose = function(e) {
+        console.log('onclose');
+    }
+
+    //
+
+    document.querySelector('#chat-message-submit').onclick=function(e){
+        e.preventDefault();
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'userName': userName,
+            'room':roomName
+
+        }));
+        messageInputDom.value='';
+
+        return false;
+
+    }
+  </script>
+{% endblock %}
+
+
